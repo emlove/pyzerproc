@@ -154,6 +154,10 @@ Get the light state
 
 Changelog
 ---------
+0.3.0 (2020-12-03)
+~~~~~~~~~~~~~~~~~~
+- Remove thread-based auto_reconnect
+
 0.2.5 (2020-06-24)
 ~~~~~~~~~~~~~~~~~~
 - Set full brightness to 0xFF to match vendor app
