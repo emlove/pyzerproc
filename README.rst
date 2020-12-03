@@ -95,7 +95,7 @@ Turn a light on and off
     light = pyzerproc.Light(address)
 
     try:
-        light.connect(auto_reconnect=True)
+        light.connect()
         light.turn_on()
 
         time.sleep(5)
