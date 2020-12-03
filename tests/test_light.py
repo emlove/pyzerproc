@@ -8,14 +8,20 @@ from pyzerproc import Light, LightState, ZerprocException
 
 
 def test_connect_disconnect(adapter, device):
-    """Test the CLI."""
+    """Test connecting and disconnecting."""
     light = Light("00:11:22")
     light.connect()
 
     adapter.start.assert_called_with(reset_on_start=False)
-    adapter.connect.assert_called_with("00:11:22", auto_reconnect=False)
+    adapter.connect.assert_called_with("00:11:22")
     device.subscribe.assert_called_with(
         "0000ffe4-0000-1000-8000-00805f9b34fb", callback=light._handle_data)
+
+    # Duplicate call shouldn't connect again
+    light.connect()
+
+    adapter.start.assert_called_once()
+    adapter.connect.assert_called_once()
 
     light.disconnect()
 
@@ -26,24 +32,38 @@ def test_connect_disconnect(adapter, device):
 
     adapter.stop.assert_called_once()
 
-    # Test auto reconnect
+
+def test_disconnect_exception(adapter, device):
+    """Test an exception while disconnecting."""
     light = Light("00:11:22")
-    light.connect(auto_reconnect=True)
+    light.connect()
 
     adapter.start.assert_called_with(reset_on_start=False)
-    adapter.connect.assert_called_with("00:11:22", auto_reconnect=True)
+    adapter.connect.assert_called_with("00:11:22")
+    device.subscribe.assert_called_with(
+        "0000ffe4-0000-1000-8000-00805f9b34fb", callback=light._handle_data)
+
+    assert light.connected
+
+    adapter.stop.side_effect = pygatt.BLEError("TEST")
+
+    with pytest.raises(ZerprocException):
+        light.disconnect()
+
+    adapter.stop.assert_called_once()
+    assert not light.connected
 
 
 def test_turn_on_not_connected(device):
-    """Test the CLI."""
+    """Test turning on the light not connected."""
     light = Light("00:11:22")
 
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ZerprocException):
         light.turn_on()
 
 
 def test_turn_on(device):
-    """Test the CLI."""
+    """Test turning on the light."""
     light = Light("00:11:22")
     light.connect()
 
@@ -54,7 +74,7 @@ def test_turn_on(device):
 
 
 def test_turn_off(device):
-    """Test the CLI."""
+    """Test turning off the light."""
     light = Light("00:11:22")
     light.connect()
 
@@ -65,7 +85,7 @@ def test_turn_off(device):
 
 
 def test_set_color(device):
-    """Test the CLI."""
+    """Test setting light color."""
     light = Light("00:11:22")
     light.connect()
 
@@ -95,7 +115,7 @@ def test_set_color(device):
 
 
 def test_get_state(device, mocker):
-    """Test the CLI."""
+    """Test getting the light state."""
     light = Light("00:11:22")
     light.connect()
 
@@ -145,15 +165,15 @@ def test_get_state(device, mocker):
 
     # Test response timeout
     device.char_write.side_effect = None
-    light.notification_queue = mocker.MagicMock()
+    light._notification_queue = mocker.MagicMock()
 
     def get_queue(*args, **kwargs):
         """Simulate a queue timeout"""
         raise queue.Empty()
 
-    light.notification_queue.get.side_effect = get_queue
+    light._notification_queue.get.side_effect = get_queue
 
-    with pytest.raises(TimeoutError):
+    with pytest.raises(ZerprocException):
         state = light.get_state()
 
 
@@ -165,7 +185,7 @@ def test_light_state_equality():
 
 
 def test_exception_wrapping(device, adapter):
-    """Test the CLI."""
+    """Test that exceptions are wrapped."""
     def raise_exception(*args, **kwargs):
         raise pygatt.BLEError("TEST")
 
