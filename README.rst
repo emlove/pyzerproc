@@ -6,8 +6,8 @@ pyzerproc
 .. image:: https://img.shields.io/pypi/v/pyzerproc.svg
         :target: https://pypi.python.org/pypi/pyzerproc
 
-.. image:: https://img.shields.io/travis/emlove/pyzerproc.svg
-        :target: https://travis-ci.org/emlove/pyzerproc
+.. image:: https://api.travis-ci.com/emlove/pyzerproc.svg
+        :target: https://travis-ci.com/github/emlove/pyzerproc
 
 .. image:: https://coveralls.io/repos/emlove/pyzerproc/badge.svg
         :target: https://coveralls.io/r/emlove/pyzerproc
