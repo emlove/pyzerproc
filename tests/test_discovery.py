@@ -1,59 +1,67 @@
 #!/usr/bin/env python
-import pygatt
 import pytest
+
+import bleak
 
 from pyzerproc import discover, ZerprocException
 
 
-def test_discover_devices(adapter):
+@pytest.mark.asyncio
+async def test_discover_devices(scanner):
     """Test the CLI."""
-    def scan(*args, **kwargs):
+    async def scan(*args, **kwargs):
         """Simulate a scanning response"""
         return [
-            {
-                'address': 'AA:BB:CC:11:22:33',
-                'name': 'LEDBlue-CC112233 ',
-            },
-            {
-                'address': 'AA:BB:CC:44:55:66',
-                'name': 'LEDBlue-CC445566 ',
-            },
-            {
-                'address': 'DD:EE:FF:11:22:33',
-                'name': 'Other',
-            },
-            {
-                'address': 'DD:EE:FF:44:55:66',
-                'name': None,
-            },
+            bleak.backends.device.BLEDevice(
+                'AA:BB:CC:11:22:33',
+                'LEDBlue-CC112233',
+                uuids=[
+                    "0000ffe0-0000-1000-8000-00805f9b34fb",
+                    "0000ffe5-0000-1000-8000-00805f9b34fb",
+                    "0000fff0-0000-1000-8000-00805f9b34fb",
+                ],
+                manufacturer_data={}
+            ),
+            bleak.backends.device.BLEDevice(
+                address='AA:BB:CC:44:55:66',
+                name='LEDBlue-CC445566',
+                uuids=[
+                    "0000ffe0-0000-1000-8000-00805f9b34fb",
+                    "0000ffe5-0000-1000-8000-00805f9b34fb",
+                    "0000fff0-0000-1000-8000-00805f9b34fb",
+                ],
+                manufacturer_data={}
+            ),
+            bleak.backends.device.BLEDevice(
+                address='DD:EE:FF:11:22:33',
+                name='Other',
+                uuids=[
+                    "0000fe9f-0000-1000-8000-00805f9b34fb",
+                ],
+                manufacturer_data={}
+            ),
         ]
 
-    adapter.scan.side_effect = scan
+    scanner.discover.side_effect = scan
 
-    devices = discover(15)
+    devices = await discover(15)
 
+    assert len(devices) == 2
     assert devices[0].address == 'AA:BB:CC:11:22:33'
     assert devices[0].name == 'LEDBlue-CC112233'
     assert devices[1].address == 'AA:BB:CC:44:55:66'
     assert devices[1].name == 'LEDBlue-CC445566'
 
-    adapter.start.assert_called_with(reset_on_start=False)
-    adapter.scan.assert_called_with(timeout=15)
-    adapter.stop.assert_called_once()
+    scanner.discover.assert_called_with(timeout=15)
 
 
-def test_exception_wrapping(adapter):
+@pytest.mark.asyncio
+async def test_exception_wrapping(scanner):
     """Test the CLI."""
-    def raise_exception(*args, **kwargs):
-        raise pygatt.BLEError("TEST")
+    async def raise_exception(*args, **kwargs):
+        raise bleak.exc.BleakError("TEST")
 
-    adapter.scan.side_effect = raise_exception
-
-    with pytest.raises(ZerprocException):
-        discover()
-
-    adapter.scan.side_effect = None
-    adapter.stop.side_effect = raise_exception
+    scanner.discover.side_effect = raise_exception
 
     with pytest.raises(ZerprocException):
-        discover()
+        await discover()

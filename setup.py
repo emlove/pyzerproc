@@ -11,7 +11,7 @@ with open('README.rst') as readme_file:
 
 requirements = [
     'Click>=7.0',
-    'pygatt[GATTTOOL]>=4.0.5',
+    'bleak>=0.10.0',
 ]
 
 setup_requirements = ['pytest-runner', ]
@@ -32,7 +32,8 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
     ],
-    description="Library to control Zerproc Bluetooth LED smart string lights",
+    description=(
+        "Async library to control Zerproc Bluetooth LED smart string lights"),
     entry_points={
         'console_scripts': [
             'pyzerproc=pyzerproc.cli:main',

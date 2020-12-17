@@ -1,36 +1,40 @@
 """Device discovery code"""
 import logging
 
+import bleak
+
 from .light import Light
 from .exceptions import ZerprocException
 
 _LOGGER = logging.getLogger(__name__)
 
+EXPECTED_SERVICES = [
+    "0000ffe0-0000-1000-8000-00805f9b34fb",
+    "0000ffe5-0000-1000-8000-00805f9b34fb",
+    "0000fff0-0000-1000-8000-00805f9b34fb",
+]
 
-def discover(timeout=10):
+
+def is_valid_device(device):
+    """Returns true if the given device is a Zerproc light."""
+    for service in EXPECTED_SERVICES:
+        if service not in device.metadata['uuids']:
+            return False
+    return True
+
+
+async def discover(timeout=10):
     """Returns nearby discovered lights."""
     _LOGGER.info("Starting scan for local devices")
 
-    import pygatt
-    adapter = pygatt.GATTToolBackend()
-
     lights = []
     try:
-        adapter.start(reset_on_start=False)
-        for device in adapter.scan(timeout=timeout):
-            # Improvements welcome
-            if device['name'] and device['name'].startswith('LEDBlue-'):
-                _LOGGER.info(
-                    "Discovered %s: %s", device['address'], device['name'])
-                lights.append(
-                    Light(device['address'], device['name'].strip()))
-    except pygatt.BLEError as ex:
+        devices = await bleak.BleakScanner.discover(timeout=timeout)
+    except bleak.exc.BleakError as ex:
         raise ZerprocException() from ex
-    finally:
-        try:
-            adapter.stop()
-        except pygatt.BLEError as ex:
-            raise ZerprocException() from ex
+    for device in devices:
+        if is_valid_device(device):
+            lights.append(Light(device.address, device.name))
 
     _LOGGER.info("Scan complete")
     return lights

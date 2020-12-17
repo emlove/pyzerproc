@@ -13,7 +13,7 @@ pyzerproc
         :target: https://coveralls.io/r/emlove/pyzerproc
 
 
-Library to control Zerproc Bluetooth LED smart string lights
+Async library to control Zerproc Bluetooth LED smart string lights
 
 * Free software: Apache Software License 2.0
 
@@ -75,81 +75,96 @@ Discover nearby devices
 
 .. code-block:: python
 
+    import asyncio
     import pyzerproc
 
-    lights = pyzerproc.discover(timeout=30)
 
-    for light in lights:
-        print("Address: {} Name: {}".format(light.address, light.name))
+    async def main():
+        lights = await pyzerproc.discover(timeout=30)
+
+        for light in lights:
+            print("Address: {} Name: {}".format(light.address, light.name))
+
+    asyncio.get_event_loop().run_until_complete(main())
 
 
 Turn a light on and off
 
 .. code-block:: python
 
+    import asyncio
     import pyzerproc
-    import time
 
-    address = "AA:BB:CC:00:11:22"
 
-    light = pyzerproc.Light(address)
+    async def main():
+        address = "AA:BB:CC:00:11:22"
 
-    try:
-        light.connect()
-        light.turn_on()
+        light = pyzerproc.Light(address)
 
-        time.sleep(5)
+        try:
+            await light.connect()
+            await light.turn_on()
 
-        light.turn_off()
-    finally:
-        light.disconnect()
+            await asyncio.sleep(5)
+
+            await light.turn_off()
+        finally:
+            await light.disconnect()
+
+    asyncio.get_event_loop().run_until_complete(main())
 
 
 Change the light color
 
 .. code-block:: python
 
+    import asyncio
     import pyzerproc
-    import time
 
-    address = "AA:BB:CC:00:11:22"
 
-    light = pyzerproc.Light(address)
+    async def main():
+        address = "AA:BB:CC:00:11:22"
 
-    try:
-        light.connect()
+        light = pyzerproc.Light(address)
 
-        while True:
-            light.set_color(255, 0, 0) # Red
-            time.sleep(1)
-            light.set_color(0, 255, 0) # Green
-            time.sleep(1)
-    finally:
-        light.disconnect()
+        try:
+            await light.connect()
+
+            while True:
+                await light.set_color(255, 0, 0) # Red
+                await asyncio.sleep(1)
+                await light.set_color(0, 255, 0) # Green
+                await asyncio.sleep(1)
+        finally:
+            await light.disconnect()
+
+    asyncio.get_event_loop().run_until_complete(main())
 
 
 Get the light state
 
 .. code-block:: python
 
+    import asyncio
     import pyzerproc
-    import time
 
-    address = "AA:BB:CC:00:11:22"
 
-    light = pyzerproc.Light(address)
+    async def main():
+        address = "AA:BB:CC:00:11:22"
 
-    try:
-        light.connect()
+        light = pyzerproc.Light(address)
 
-        state = light.get_state()
+        try:
+            await light.connect()
 
-        if state.is_on:
-            print(state.color)
-        else:
-            print("Off")
-    finally:
-        light.disconnect()
+            state = await light.get_state()
+
+            if state.is_on:
+                print(state.color)
+            else:
+                print("Off")
+        finally:
+            await light.disconnect()
 
 
 Changelog

@@ -1,8 +1,10 @@
 """Device class"""
+import asyncio
 from binascii import hexlify
 import logging
 import math
-import queue
+
+import bleak
 
 from .exceptions import ZerprocException
 
@@ -22,7 +24,8 @@ class Light():
         self._name = name
         self._adapter = None
         self._device = None
-        self._notification_queue = queue.Queue(maxsize=1)
+        self._client = bleak.BleakClient(self._address)
+        self._notification_queue = asyncio.Queue(maxsize=1)
 
     @property
     def address(self):
@@ -34,60 +37,52 @@ class Light():
         """Return the discovered name of this light."""
         return self._name
 
-    @property
-    def connected(self):
+    async def is_connected(self):
         """Returns true if the light is connected."""
-        return self._device is not None
+        return await self._client.is_connected()
 
-    def connect(self):
+    async def connect(self):
         """Connect to this light"""
-        import pygatt
-
-        if self.connected:
+        if await self.is_connected():
             return
 
-        _LOGGER.info("Connecting to %s", self._address)
+        _LOGGER.debug("Connecting to %s", self._address)
 
-        self._adapter = pygatt.GATTToolBackend()
         try:
-            self._adapter.start(reset_on_start=False)
-            self._device = self._adapter.connect(self._address)
-
-            self._device.subscribe(CHARACTERISTIC_NOTIFY_VALUE,
-                                   callback=self._handle_data)
-        except pygatt.BLEError as ex:
-            self._adapter = None
-            self._device = None
+            await self._client.connect()
+            await self._client.start_notify(
+                CHARACTERISTIC_NOTIFY_VALUE, self._handle_data)
+        except bleak.exc.BleakError as ex:
             raise ZerprocException() from ex
 
         _LOGGER.debug("Connected to %s", self._address)
 
-    def disconnect(self):
+    async def disconnect(self):
         """Close the connection to the light."""
-        import pygatt
+        if not await self.is_connected():
+            return
 
-        if self._adapter:
-            try:
-                self._adapter.stop()
-            except pygatt.BLEError as ex:
-                raise ZerprocException() from ex
-            finally:
-                self._adapter = None
-                self._device = None
+        _LOGGER.debug("Disconnecting from %s", self._address)
+        try:
+            await self._client.stop_notify(CHARACTERISTIC_NOTIFY_VALUE)
+            await self._client.disconnect()
+        except bleak.exc.BleakError as ex:
+            raise ZerprocException() from ex
+        _LOGGER.debug("Disconnected from %s", self._address)
 
-    def turn_on(self):
+    async def turn_on(self):
         """Turn on the light"""
         _LOGGER.info("Turning on %s", self._address)
-        self._write(CHARACTERISTIC_COMMAND_WRITE, b'\xCC\x23\x33')
+        await self._write(CHARACTERISTIC_COMMAND_WRITE, b'\xCC\x23\x33')
         _LOGGER.debug("Turned on %s", self._address)
 
-    def turn_off(self):
+    async def turn_off(self):
         """Turn off the light"""
         _LOGGER.info("Turning off %s", self._address)
-        self._write(CHARACTERISTIC_COMMAND_WRITE, b'\xCC\x24\x33')
+        await self._write(CHARACTERISTIC_COMMAND_WRITE, b'\xCC\x24\x33')
         _LOGGER.debug("Turned off %s", self._address)
 
-    def set_color(self, r, g, b):
+    async def set_color(self, r, g, b):
         """Set the color of the light
 
         Accepts red, green, and blue values from 0-255
@@ -108,12 +103,12 @@ class Light():
         b = 255 if b == 255 else int(math.ceil(b * 31 / 255))
 
         if r == 0 and g == 0 and b == 0:
-            self.turn_off()
+            await self.turn_off()
         else:
             color_string = bytes((r, g, b))
 
             value = b'\x56' + color_string + b'\x00\xF0\xAA'
-            self._write(CHARACTERISTIC_COMMAND_WRITE, value)
+            await self._write(CHARACTERISTIC_COMMAND_WRITE, value)
             _LOGGER.debug("Changed color of %s", self._address)
 
     def _handle_data(self, handle, value):
@@ -121,23 +116,24 @@ class Light():
         _LOGGER.debug("Got handle '%s' and value %s", handle, hexlify(value))
         try:
             self._notification_queue.put_nowait(value)
-        except queue.Full:
+        except asyncio.QueueFull:
             _LOGGER.debug("Discarding duplicate response", exc_info=True)
 
-    def get_state(self):
+    async def get_state(self):
         """Get the current state of the light"""
         # Clear the queue if a value is somehow left over
         try:
             self._notification_queue.get_nowait()
-        except queue.Empty:
+        except asyncio.QueueEmpty:
             pass
 
-        self._write(CHARACTERISTIC_COMMAND_WRITE, b'\xEF\x01\x77')
+        await self._write(CHARACTERISTIC_COMMAND_WRITE, b'\xEF\x01\x77')
 
         try:
-            response = self._notification_queue.get(
+            response = await asyncio.wait_for(
+                self._notification_queue.get(),
                 timeout=NOTIFICATION_RESPONSE_TIMEOUT)
-        except queue.Empty as ex:
+        except asyncio.TimeoutError as ex:
             raise ZerprocException("Timeout waiting for response") from ex
 
         on_off_value = int(response[2])
@@ -164,22 +160,12 @@ class Light():
 
         return state
 
-    def _write(self, uuid, value):
+    async def _write(self, uuid, value):
         """Internal method to write to the device"""
-        import pygatt
-
-        if not self.connected:
-            raise ZerprocException(
-                "Light {} is not connected".format(self._address))
-
         _LOGGER.debug("Writing 0x%s to characteristic %s", value.hex(), uuid)
         try:
-            self._device.char_write(uuid, value)
-        except pygatt.BLEError as ex:
-            try:
-                self.disconnect()
-            except ZerprocException:
-                pass
+            await self._client.write_gatt_char(uuid, bytearray(value))
+        except bleak.exc.BleakError as ex:
             raise ZerprocException() from ex
         _LOGGER.debug("Wrote 0x%s to characteristic %s", value.hex(), uuid)
 
