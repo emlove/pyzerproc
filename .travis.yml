@@ -10,7 +10,7 @@ python:
 install:
   - pip install -qr requirements_dev.txt
 script:
-  - coverage run -m pytest
+  - pytest --cov --cov-report term-missing
   - flake8
 notifications:
   email: false

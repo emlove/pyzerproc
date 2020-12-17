@@ -7,7 +7,7 @@ from pyzerproc import discover, ZerprocException
 
 
 @pytest.mark.asyncio
-async def test_discover_devices(scanner):
+async def test_discover_devices(scanner, client_class):
     """Test the CLI."""
     async def scan(*args, **kwargs):
         """Simulate a scanning response"""
