@@ -169,6 +169,10 @@ Get the light state
 
 Changelog
 ---------
+0.4.0 (2020-12-17)
+~~~~~~~~~~~~~~~~~~
+- Refactor from pygatt to bleak for async interface
+
 0.3.0 (2020-12-03)
 ~~~~~~~~~~~~~~~~~~
 - Remove thread-based auto_reconnect
