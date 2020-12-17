@@ -169,6 +169,10 @@ Get the light state
 
 Changelog
 ---------
+0.4.1 (2020-12-17)
+~~~~~~~~~~~~~~~~~~
+- Wrap exceptions from is_connected
+
 0.4.0 (2020-12-17)
 ~~~~~~~~~~~~~~~~~~
 - Refactor from pygatt to bleak for async interface
