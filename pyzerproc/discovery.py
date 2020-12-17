@@ -5,19 +5,14 @@ import bleak
 
 from .light import Light
 from .exceptions import ZerprocException
+from .const import DISCOVERY_EXPECTED_SERVICES
 
 _LOGGER = logging.getLogger(__name__)
-
-EXPECTED_SERVICES = [
-    "0000ffe0-0000-1000-8000-00805f9b34fb",
-    "0000ffe5-0000-1000-8000-00805f9b34fb",
-    "0000fff0-0000-1000-8000-00805f9b34fb",
-]
 
 
 def is_valid_device(device):
     """Returns true if the given device is a Zerproc light."""
-    for service in EXPECTED_SERVICES:
+    for service in DISCOVERY_EXPECTED_SERVICES:
         if service not in device.metadata['uuids']:
             return False
     return True
