@@ -39,7 +39,10 @@ class Light():
 
     async def is_connected(self):
         """Returns true if the light is connected."""
-        return await self._client.is_connected()
+        try:
+            return await self._client.is_connected()
+        except bleak.exc.BleakError as ex:
+            raise ZerprocException() from ex
 
     async def connect(self):
         """Connect to this light"""

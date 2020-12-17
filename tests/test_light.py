@@ -197,6 +197,11 @@ async def test_exception_wrapping(client):
     light = Light("00:11:22")
     await light.connect()
 
+    client.is_connected.side_effect = bleak.exc.BleakError("TEST")
+
+    with pytest.raises(ZerprocException):
+        await light.is_connected()
+
     client.write_gatt_char.side_effect = bleak.exc.BleakError("TEST")
 
     with pytest.raises(ZerprocException):
