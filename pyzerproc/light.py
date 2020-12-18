@@ -6,10 +6,12 @@ import math
 
 import bleak
 
-from .const import CHARACTERISTIC_COMMAND_WRITE, CHARACTERISTIC_NOTIFY_VALUE
 from .exceptions import ZerprocException
 
 _LOGGER = logging.getLogger(__name__)
+
+CHARACTERISTIC_COMMAND_WRITE = "0000ffe9-0000-1000-8000-00805f9b34fb"
+CHARACTERISTIC_NOTIFY_VALUE = "0000ffe4-0000-1000-8000-00805f9b34fb"
 
 NOTIFICATION_RESPONSE_TIMEOUT = 5
 

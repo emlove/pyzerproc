@@ -4,7 +4,7 @@
 
 from setuptools import setup, find_packages
 
-from pyzerproc.const import __author__, __email__, __version__
+from pyzerproc import __author__, __email__, __version__
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
