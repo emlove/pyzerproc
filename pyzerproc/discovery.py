@@ -1,8 +1,6 @@
 """Device discovery code"""
 import logging
 
-import bleak
-
 from .light import Light
 from .exceptions import ZerprocException
 
@@ -25,6 +23,8 @@ def is_valid_device(device):
 
 async def discover(timeout=10):
     """Returns nearby discovered lights."""
+    import bleak
+
     _LOGGER.info("Starting scan for local devices")
 
     lights = []

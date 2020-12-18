@@ -4,8 +4,6 @@ from binascii import hexlify
 import logging
 import math
 
-import bleak
-
 from .exceptions import ZerprocException
 
 _LOGGER = logging.getLogger(__name__)
@@ -20,6 +18,8 @@ class Light():
     """Represents one connected light"""
 
     def __init__(self, address, name=None):
+        import bleak
+
         self._address = address
         self._name = name
         self._adapter = None
@@ -39,6 +39,8 @@ class Light():
 
     async def is_connected(self):
         """Returns true if the light is connected."""
+        import bleak
+
         try:
             return await self._client.is_connected()
         except bleak.exc.BleakError as ex:
@@ -46,6 +48,8 @@ class Light():
 
     async def connect(self):
         """Connect to this light"""
+        import bleak
+
         if await self.is_connected():
             return
 
@@ -62,6 +66,8 @@ class Light():
 
     async def disconnect(self):
         """Close the connection to the light."""
+        import bleak
+
         if not await self.is_connected():
             return
 
@@ -166,6 +172,8 @@ class Light():
     async def _write(self, uuid, value):
         """Internal method to write to the device"""
         _LOGGER.debug("Writing 0x%s to characteristic %s", value.hex(), uuid)
+        import bleak
+
         try:
             await self._client.write_gatt_char(uuid, bytearray(value))
         except bleak.exc.BleakError as ex:
