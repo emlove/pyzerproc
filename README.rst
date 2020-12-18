@@ -169,7 +169,7 @@ Get the light state
 
 Changelog
 ---------
-0.4.2 (2020-12-17)
+0.4.3 (2020-12-17)
 ~~~~~~~~~~~~~~~~~~
 - Fix bleak dependency called in setup.py
 
