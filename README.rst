@@ -169,6 +169,10 @@ Get the light state
 
 Changelog
 ---------
+0.4.2 (2020-12-17)
+~~~~~~~~~~~~~~~~~~
+- Fix bleak dependency called in setup.py
+
 0.4.1 (2020-12-17)
 ~~~~~~~~~~~~~~~~~~
 - Wrap exceptions from is_connected
