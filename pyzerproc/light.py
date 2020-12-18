@@ -22,8 +22,6 @@ class Light():
 
         self._address = address
         self._name = name
-        self._adapter = None
-        self._device = None
         self._client = bleak.BleakClient(self._address)
         self._notification_queue = asyncio.Queue(maxsize=1)
 
