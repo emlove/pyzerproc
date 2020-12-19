@@ -22,24 +22,12 @@ async def test_connect_disconnect(client_class, client):
     client.start_notify.assert_called_with(
         "0000ffe4-0000-1000-8000-00805f9b34fb", light._handle_data)
 
-    # Duplicate call shouldn't connect again
-    await light.connect()
-
-    client.connect.assert_called_once()
-    client.start_notify.assert_called_once()
-
     await light.disconnect()
 
     client.disconnect.assert_called_once()
     client.stop_notify.assert_called_once()
     client.stop_notify.assert_called_with(
         "0000ffe4-0000-1000-8000-00805f9b34fb")
-
-    # Duplicate disconnect shouldn't call stop again
-    await light.disconnect()
-
-    client.disconnect.assert_called_once()
-    client.stop_notify.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -63,6 +51,26 @@ async def test_disconnect_exception(client):
 
     with pytest.raises(ZerprocException):
         await light.disconnect()
+
+
+@pytest.mark.asyncio
+async def test_is_connected(client):
+    """Test turning on the light."""
+    light = Light("00:11:22")
+    await light.connect()
+    client.is_connected.side_effect = None
+
+    client.is_connected.return_value = False
+
+    assert not await light.is_connected()
+
+    client.is_connected.return_value = True
+
+    assert await light.is_connected()
+
+    client.is_connected.side_effect = asyncio.TimeoutError("Mock timeout")
+
+    assert not await light.is_connected()
 
 
 @pytest.mark.asyncio

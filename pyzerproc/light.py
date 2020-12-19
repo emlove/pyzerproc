@@ -35,21 +35,20 @@ class Light():
         """Return the discovered name of this light."""
         return self._name
 
-    async def is_connected(self):
+    async def is_connected(self, *args, timeout=10):
         """Returns true if the light is connected."""
         import bleak
 
         try:
-            return await self._client.is_connected()
+            return await asyncio.wait_for(self._client.is_connected(), timeout)
+        except asyncio.TimeoutError:
+            return False
         except bleak.exc.BleakError as ex:
             raise ZerprocException() from ex
 
     async def connect(self):
         """Connect to this light"""
         import bleak
-
-        if await self.is_connected():
-            return
 
         _LOGGER.debug("Connecting to %s", self._address)
 
@@ -65,9 +64,6 @@ class Light():
     async def disconnect(self):
         """Close the connection to the light."""
         import bleak
-
-        if not await self.is_connected():
-            return
 
         _LOGGER.debug("Disconnecting from %s", self._address)
         try:
