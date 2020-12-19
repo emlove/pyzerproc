@@ -169,6 +169,10 @@ Get the light state
 
 Changelog
 ---------
+0.4.4 (2020-12-19)
+~~~~~~~~~~~~~~~~~~
+- Timeout for is_connected and reduce extra calls
+
 0.4.3 (2020-12-17)
 ~~~~~~~~~~~~~~~~~~
 - Fix bleak dependency called in setup.py
