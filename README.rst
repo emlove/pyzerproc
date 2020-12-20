@@ -169,6 +169,10 @@ Get the light state
 
 Changelog
 ---------
+0.4.6 (2020-12-20)
+~~~~~~~~~~~~~~~~~~
+- Include a default timeout on all remote calls
+
 0.4.5 (2020-12-20)
 ~~~~~~~~~~~~~~~~~~
 - Wrap all exceptions from upstream code
