@@ -11,8 +11,8 @@ _LOGGER = logging.getLogger(__name__)
 CHARACTERISTIC_COMMAND_WRITE = "0000ffe9-0000-1000-8000-00805f9b34fb"
 CHARACTERISTIC_NOTIFY_VALUE = "0000ffe4-0000-1000-8000-00805f9b34fb"
 
-# Default to a 10s timeout on remote calls
-DEFAULT_TIMEOUT = 10
+# Default to a 5s timeout on remote calls
+DEFAULT_TIMEOUT = 5
 
 
 class Light():
