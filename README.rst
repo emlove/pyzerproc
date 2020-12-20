@@ -169,7 +169,7 @@ Get the light state
 
 Changelog
 ---------
-0.4.6 (2020-12-20)
+0.4.7 (2020-12-20)
 ~~~~~~~~~~~~~~~~~~
 - Include a default timeout on all remote calls
 
