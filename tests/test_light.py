@@ -84,6 +84,12 @@ async def test_turn_on(client):
     client.write_gatt_char.assert_called_with(
         '0000ffe9-0000-1000-8000-00805f9b34fb', b'\xCC\x23\x33')
 
+    light._write = asynctest.MagicMock()
+    light._write.side_effect = asyncio.TimeoutError("Mock timeout")
+
+    with pytest.raises(ZerprocException):
+        await light.turn_on()
+
 
 @pytest.mark.asyncio
 async def test_turn_off(client):
@@ -95,6 +101,12 @@ async def test_turn_off(client):
 
     client.write_gatt_char.assert_called_with(
         '0000ffe9-0000-1000-8000-00805f9b34fb', b'\xCC\x24\x33')
+
+    light._write = asynctest.MagicMock()
+    light._write.side_effect = asyncio.TimeoutError("Mock timeout")
+
+    with pytest.raises(ZerprocException):
+        await light.turn_off()
 
 
 @pytest.mark.asyncio
@@ -126,6 +138,12 @@ async def test_set_color(client):
 
     with pytest.raises(ValueError):
         await light.set_color(999, 999, 999)
+
+    light._write = asynctest.MagicMock()
+    light._write.side_effect = asyncio.TimeoutError("Mock timeout")
+
+    with pytest.raises(ZerprocException):
+        await light.set_color(255, 255, 255)
 
 
 @pytest.mark.asyncio

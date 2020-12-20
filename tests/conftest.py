@@ -19,17 +19,14 @@ def client(client_class):
 
     async def is_connected():
         nonlocal connected
-        print("CALLING IS_CONNECTED")
         return connected
 
     async def connect():
         nonlocal connected
-        print("CALLING CONNECT")
         connected = True
 
     async def disconnect():
         nonlocal connected
-        print("CALLING DISCONNECT")
         connected = False
 
     client.is_connected.side_effect = is_connected
