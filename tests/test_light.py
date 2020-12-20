@@ -214,3 +214,9 @@ async def test_exception_wrapping(client):
 
     with pytest.raises(ZerprocException):
         await light.turn_on()
+
+    # Upstream misses some None checks and doesn't wrap the exceptions
+    client.write_gatt_char.side_effect = AttributeError("TEST")
+
+    with pytest.raises(ZerprocException):
+        await light.turn_on()

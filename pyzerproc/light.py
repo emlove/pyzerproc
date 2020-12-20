@@ -37,39 +37,33 @@ class Light():
 
     async def is_connected(self, *args, timeout=10):
         """Returns true if the light is connected."""
-        import bleak
-
         try:
             return await asyncio.wait_for(self._client.is_connected(), timeout)
         except asyncio.TimeoutError:
             return False
-        except bleak.exc.BleakError as ex:
+        except Exception as ex:
             raise ZerprocException() from ex
 
     async def connect(self):
         """Connect to this light"""
-        import bleak
-
         _LOGGER.debug("Connecting to %s", self._address)
 
         try:
             await self._client.connect()
             await self._client.start_notify(
                 CHARACTERISTIC_NOTIFY_VALUE, self._handle_data)
-        except bleak.exc.BleakError as ex:
+        except Exception as ex:
             raise ZerprocException() from ex
 
         _LOGGER.debug("Connected to %s", self._address)
 
     async def disconnect(self):
         """Close the connection to the light."""
-        import bleak
-
         _LOGGER.debug("Disconnecting from %s", self._address)
         try:
             await self._client.stop_notify(CHARACTERISTIC_NOTIFY_VALUE)
             await self._client.disconnect()
-        except bleak.exc.BleakError as ex:
+        except Exception as ex:
             raise ZerprocException() from ex
         _LOGGER.debug("Disconnected from %s", self._address)
 
@@ -166,11 +160,9 @@ class Light():
     async def _write(self, uuid, value):
         """Internal method to write to the device"""
         _LOGGER.debug("Writing 0x%s to characteristic %s", value.hex(), uuid)
-        import bleak
-
         try:
             await self._client.write_gatt_char(uuid, bytearray(value))
-        except bleak.exc.BleakError as ex:
+        except Exception as ex:
             raise ZerprocException() from ex
         _LOGGER.debug("Wrote 0x%s to characteristic %s", value.hex(), uuid)
 
