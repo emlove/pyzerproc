@@ -169,6 +169,10 @@ Get the light state
 
 Changelog
 ---------
+0.4.5 (2020-12-20)
+~~~~~~~~~~~~~~~~~~
+- Wrap all exceptions from upstream code
+
 0.4.4 (2020-12-19)
 ~~~~~~~~~~~~~~~~~~
 - Timeout for is_connected and reduce extra calls
