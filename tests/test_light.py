@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 import asyncio
-import asynctest
 import pytest
 
 import bleak
 
 from pyzerproc import Light, LightState, ZerprocException
+from .conftest import MagicMock
 
 
 @pytest.mark.asyncio
@@ -84,7 +84,7 @@ async def test_turn_on(client):
     client.write_gatt_char.assert_called_with(
         '0000ffe9-0000-1000-8000-00805f9b34fb', b'\xCC\x23\x33')
 
-    light._write = asynctest.MagicMock()
+    light._write = MagicMock()
     light._write.side_effect = asyncio.TimeoutError("Mock timeout")
 
     with pytest.raises(ZerprocException):
@@ -102,7 +102,7 @@ async def test_turn_off(client):
     client.write_gatt_char.assert_called_with(
         '0000ffe9-0000-1000-8000-00805f9b34fb', b'\xCC\x24\x33')
 
-    light._write = asynctest.MagicMock()
+    light._write = MagicMock()
     light._write.side_effect = asyncio.TimeoutError("Mock timeout")
 
     with pytest.raises(ZerprocException):
@@ -139,7 +139,7 @@ async def test_set_color(client):
     with pytest.raises(ValueError):
         await light.set_color(999, 999, 999)
 
-    light._write = asynctest.MagicMock()
+    light._write = MagicMock()
     light._write.side_effect = asyncio.TimeoutError("Mock timeout")
 
     with pytest.raises(ZerprocException):
@@ -198,7 +198,7 @@ async def test_get_state(client):
 
     # Test response timeout
     client.write_gatt_char.side_effect = None
-    light._notification_queue = asynctest.MagicMock()
+    light._notification_queue = MagicMock()
 
     async def get_queue(*args, **kwargs):
         """Simulate a queue timeout"""
