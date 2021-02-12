@@ -169,6 +169,10 @@ Get the light state
 
 Changelog
 ---------
+0.4.8 (2021-02-12)
+~~~~~~~~~~~~~~~~~~
+- Dependency cleanup `(#1) <https://github.com/emlove/pyzerproc/pull/1>`_ `(#3) <https://github.com/emlove/pyzerproc/issues/3>`_ `@fabaff <https://github.com/fabaff>`_
+
 0.4.7 (2020-12-20)
 ~~~~~~~~~~~~~~~~~~
 - Include a default timeout on all remote calls
