@@ -58,13 +58,18 @@ async def test_is_connected(client):
     """Test turning on the light."""
     light = Light("00:11:22")
     await light.connect()
-    client.is_connected.side_effect = None
 
-    client.is_connected.return_value = False
+    connected = False
+
+    async def is_connected():
+        nonlocal connected
+        return connected
+
+    client.is_connected.side_effect = is_connected
 
     assert not await light.is_connected()
 
-    client.is_connected.return_value = True
+    connected = True
 
     assert await light.is_connected()
 
