@@ -3,6 +3,6 @@ from .discovery import discover  # noqa: F401
 from .light import Light, LightState  # noqa: F401
 from .exceptions import *  # noqa: F401, F403
 
-__author__ = """Emily Mills"""
+__author__ = """Emily Love Mills"""
 __email__ = 'emily@emlove.me'
-__version__ = '0.4.9'
+__version__ = '0.4.10'

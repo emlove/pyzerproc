@@ -169,6 +169,10 @@ Get the light state
 
 Changelog
 ---------
+0.4.10 (2021-11-23)
+~~~~~~~~~~~~~~~~~~~
+- Fix test compatibility with bleak 0.13
+
 0.4.9 (2021-03-28)
 ~~~~~~~~~~~~~~~~~~
 - Upgrade to `bleak 0.11.0 <https://github.com/hbldh/bleak/releases/tag/v0.11.0>`_
