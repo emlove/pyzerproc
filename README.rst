@@ -169,6 +169,10 @@ Get the light state
 
 Changelog
 ---------
+0.4.11 (2022-05-03)
+~~~~~~~~~~~~~~~~~~~
+- Unpin test dependencies
+
 0.4.10 (2021-11-23)
 ~~~~~~~~~~~~~~~~~~~
 - Fix test compatibility with bleak 0.13
