@@ -15,30 +15,33 @@ async def test_discover_devices(scanner, client_class):
             bleak.backends.device.BLEDevice(
                 'AA:BB:CC:11:22:33',
                 'LEDBlue-CC112233',
+                {},
+                0,
                 uuids=[
                     "0000ffe0-0000-1000-8000-00805f9b34fb",
                     "0000ffe5-0000-1000-8000-00805f9b34fb",
                     "0000fff0-0000-1000-8000-00805f9b34fb",
                 ],
-                manufacturer_data={}
             ),
             bleak.backends.device.BLEDevice(
-                address='AA:BB:CC:44:55:66',
-                name='LEDBlue-CC445566',
+                'AA:BB:CC:44:55:66',
+                'LEDBlue-CC445566',
+                {},
+                0,
                 uuids=[
                     "0000ffe0-0000-1000-8000-00805f9b34fb",
                     "0000ffe5-0000-1000-8000-00805f9b34fb",
                     "0000fff0-0000-1000-8000-00805f9b34fb",
                 ],
-                manufacturer_data={}
             ),
             bleak.backends.device.BLEDevice(
-                address='DD:EE:FF:11:22:33',
-                name='Other',
+                'DD:EE:FF:11:22:33',
+                'Other',
+                {},
+                0,
                 uuids=[
                     "0000fe9f-0000-1000-8000-00805f9b34fb",
                 ],
-                manufacturer_data={}
             ),
         ]
 
